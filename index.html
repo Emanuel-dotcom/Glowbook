@@ -216,7 +216,7 @@
 
 <script>
 // ── CONFIG ──────────────────────────────────────────
-const SCRIPT_URL = '/api/proxy';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzfTHBAh4QnYBmsTxFjN7eSAE4Oj_YD9IF6By11xJJAjTVzeB75IPAM43fd9MfhM4btA/exec';
 const HS = 8, HE = 20;
 
 const SVC = {
@@ -305,11 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── SHEETS ──────────────────────────────────────────
 async function loadSheets() {
   try {
-    const r = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({action: 'getAll'})
-    });
+    const r = await fetch(SCRIPT_URL + '?action=getAll');
     const j = await r.json();
     if (Array.isArray(j) && j.length > 0) {
       apts = j;
@@ -322,6 +318,7 @@ async function saveToSheets(payload) {
   try {
     await fetch(SCRIPT_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(payload)
     });
