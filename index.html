@@ -13,7 +13,7 @@
       --gold:#c9973a;--rose:#e8a0b0;
       --HH:60px;--LW:56px;
     }
-    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg );color:var(--tx);min-height:100vh}
 
     /* HEADER */
     .hdr{background:var(--sur);border-bottom:1px solid var(--brd);padding:1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
@@ -233,7 +233,7 @@ const MNR  = ['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','nov',
 
 // ── STATE ───────────────────────────────────────────
 let apts    = [];
-let selDate = today();
+let selDate = today( );
 let selDur  = 30;
 let selSvc  = null;
 let idCtr   = Date.now();
