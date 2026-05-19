@@ -216,7 +216,7 @@
 
 <script>
 // ── CONFIG ──────────────────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPaKBHcL_KyEwbAstLkmpcXINPPBQNEzRfKhoHz8JiyAM9iriGknpi21USuQlJ3rIidQ/exec';
+const SCRIPT_URL = '/api/proxy';
 const HS = 8, HE = 20;
 
 const SVC = {
@@ -305,23 +305,26 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── SHEETS ──────────────────────────────────────────
 async function loadSheets() {
   try {
-    const r = await fetch(SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify({action:'getAll'})));
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'getAll'})
+    });
     const j = await r.json();
     if (Array.isArray(j) && j.length > 0) {
       apts = j;
       renderAll();
     }
-  } catch(e) {
-    // offline or CORS
-  }
+  } catch(e) { /* silent */ }
 }
 
-function saveToSheets(payload) {
+async function saveToSheets(payload) {
   try {
-    const params = new URLSearchParams({ data: JSON.stringify(payload) });
-    const url = SCRIPT_URL + '?' + params.toString();
-    const img = new Image();
-    img.src = url;
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
   } catch(e) { /* silent */ }
 }
 
