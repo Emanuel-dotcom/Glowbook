@@ -320,7 +320,8 @@ function saveToSheets(payload) {
   try {
     const params = new URLSearchParams({ data: JSON.stringify(payload) });
     const url = SCRIPT_URL + '?' + params.toString();
-    navigator.sendBeacon(url);
+    const img = new Image();
+    img.src = url;
   } catch(e) { /* silent */ }
 }
 
