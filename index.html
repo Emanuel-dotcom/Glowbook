@@ -216,7 +216,7 @@
 
 <script>
 // ── CONFIG ──────────────────────────────────────────
-const SCRIPT_URL = '/api/proxy';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPaKBHcL_KyEwbAstLkmpcXINPPBQNEzRfKhoHz8JiyAM9iriGknpi21USuQlJ3rIidQ/exec';
 const HS = 8, HE = 20;
 
 const SVC = {
@@ -305,24 +305,22 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── SHEETS ──────────────────────────────────────────
 async function loadSheets() {
   try {
-    const r = await fetch(SCRIPT_URL);
+    const r = await fetch(SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify({action:'getAll'})));
     const j = await r.json();
     if (Array.isArray(j) && j.length > 0) {
       apts = j;
       renderAll();
     }
   } catch(e) {
-    // offline or CORS — stays in-memory, no crash
+    // offline or CORS
   }
 }
 
-async function saveToSheets(payload) {
+function saveToSheets(payload) {
   try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload)
-    });
+    const params = new URLSearchParams({ data: JSON.stringify(payload) });
+    const url = SCRIPT_URL + '?' + params.toString();
+    navigator.sendBeacon(url);
   } catch(e) { /* silent */ }
 }
 
