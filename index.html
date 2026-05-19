@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+  <title>GlowBook</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:#faf9f7;--sur:#fff;--brd:#ede9e3;--brd2:#f0ece6;
+      --tx:#1c1a18;--tx2:#7a7068;--tx3:#b0a89e;
+      --gold:#c9973a;--rose:#e8a0b0;
+      --HH:60px;--LW:56px;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+
+    /* HEADER */
+    .hdr{background:var(--sur);border-bottom:1px solid var(--brd);padding:1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .brand{display:flex;align-items:center;gap:.6rem}
+    .bgem{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e8a0b0,#c9973a);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff}
+    .bname{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600}
+    .bname em{color:var(--gold);font-style:normal}
+    .hbtns{display:flex;gap:.45rem}
+    .btn{font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;padding:.42rem .85rem;border-radius:20px;border:1px solid var(--brd);background:var(--sur);color:var(--tx);cursor:pointer;transition:all .16s;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
+    .btn:hover{background:var(--bg)}
+    .btn-p{background:var(--tx);color:#fff;border-color:var(--tx)}
+    .btn-p:hover{opacity:.82;background:var(--tx)}
+    .btn-d{color:#d94f4f;border-color:#f5d5d5}
+    .btn-d:hover{background:#fff5f5}
+
+    /* STRIP */
+    .swrap{background:var(--sur);border-bottom:1px solid var(--brd);padding:.6rem 1.2rem;overflow-x:auto;scrollbar-width:none}
+    .swrap::-webkit-scrollbar{display:none}
+    .strip{display:flex;gap:.3rem;min-width:max-content}
+    .dc{display:flex;flex-direction:column;align-items:center;gap:.08rem;padding:.32rem .6rem .38rem;border-radius:10px;border:1.5px solid transparent;cursor:pointer;transition:all .16s;min-width:48px}
+    .dc:hover{background:var(--bg)}
+    .dc.on{background:var(--tx);border-color:var(--tx)}
+    .dcn{font-size:.58rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--tx3)}
+    .dc.on .dcn{color:rgba(255,255,255,.5)}
+    .dcd{font-size:.98rem;font-weight:600;color:var(--tx);line-height:1}
+    .dc.on .dcd{color:#fff}
+    .dcdot{width:4px;height:4px;border-radius:50%;background:var(--rose);margin-top:2px;opacity:0;transition:opacity .2s}
+    .dc.has .dcdot{opacity:1}
+    .dc.on .dcdot{background:rgba(255,255,255,.5)}
+
+    /* MAIN */
+    .main{max-width:720px;margin:0 auto;padding:1.4rem 1rem 5rem}
+    .dhead{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;margin-bottom:.9rem}
+    .stats{display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1.1rem}
+    .stat{background:var(--sur);border:1px solid var(--brd);border-radius:20px;padding:.32rem .8rem;font-size:.76rem;font-weight:500;color:var(--tx2);display:flex;align-items:center;gap:.28rem}
+    .stat b{color:var(--tx);font-weight:600}
+
+    /* TIMELINE */
+    .tlshell{background:var(--sur);border:1px solid var(--brd);border-radius:14px;overflow:hidden}
+    .tlgrid{display:flex;position:relative}
+    .tlhours{width:var(--LW);flex-shrink:0;border-right:1px solid var(--brd2);position:relative}
+    .hrlabel{height:var(--HH);display:flex;align-items:flex-start;justify-content:flex-end;padding-right:8px;padding-top:4px;font-size:.67rem;font-weight:600;color:var(--tx3);border-top:1px solid var(--brd2)}
+    .hrlabel:first-child{border-top:none}
+    .tlevents{flex:1;position:relative}
+    .hrline{position:absolute;left:0;right:0;height:var(--HH);border-top:1px solid var(--brd2)}
+    .hrline:first-child{border-top:none}
+    .hrfree{width:100%;height:100%;background:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(0,0,0,.018) 5px,rgba(0,0,0,.018) 10px)}
+
+    /* APT BLOCKS */
+    .ablock{position:absolute;left:4px;right:4px;border-radius:7px;padding:4px 7px;cursor:pointer;border-left:3px solid;display:flex;flex-direction:column;overflow:hidden;transition:filter .15s,transform .12s;box-shadow:0 1px 3px rgba(0,0,0,.07);z-index:2}
+    .ablock:hover{filter:brightness(.94);transform:scaleX(.985)}
+    .abn{font-size:.75rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+    .abs{font-size:.67rem;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .abt{font-size:.62rem;opacity:.55;margin-top:2px}
+
+    .c-hair   {background:#fdf3f6;border-color:#e8a0b0;color:#6e2e45}
+    .c-nails  {background:#eef7f1;border-color:#7aaa8a;color:#275c38}
+    .c-makeup {background:#fdf6ea;border-color:#c9973a;color:#6b4b12}
+    .c-massage{background:#eef6fb;border-color:#6aabcc;color:#144f6b}
+    .c-other  {background:#f3f0fb;border-color:#9d8ec8;color:#3d2e6b}
+
+    /* NOW LINE */
+    .nowline{position:absolute;left:0;right:0;height:2px;background:var(--rose);z-index:5;pointer-events:none}
+    .nowdot{position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--rose)}
+
+    /* LEGEND */
+    .legend{display:flex;gap:.6rem;flex-wrap:wrap;padding:.6rem 1rem;border-top:1px solid var(--brd2);background:var(--bg)}
+    .legit{display:flex;align-items:center;gap:.25rem;font-size:.7rem;color:var(--tx2)}
+    .legdot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:3rem 2rem;color:var(--tx3)}
+    .eico{font-size:2.6rem;margin-bottom:.65rem}
+    .etit{font-size:.93rem;font-weight:600;color:var(--tx2);margin-bottom:.2rem}
+    .esub{font-size:.8rem}
+
+    /* MODAL */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(5px);z-index:500;align-items:center;justify-content:center}
+    .overlay.open{display:flex}
+    .modal{background:var(--sur);border-radius:18px;width:90%;max-width:460px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.13);animation:sup .22s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes sup{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .mhead{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.4rem 0}
+    .mtit{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600}
+    .mx{width:28px;height:28px;border-radius:50%;border:1px solid var(--brd);background:var(--bg);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx2);transition:background .15s}
+    .mx:hover{background:var(--brd)}
+    .mbody{padding:1.1rem 1.4rem 1.4rem}
+    .fg{margin-bottom:.85rem}
+    .fg label{display:block;font-size:.7rem;font-weight:600;color:var(--tx2);margin-bottom:.28rem;letter-spacing:.05em;text-transform:uppercase}
+    .fg input,.fg textarea{width:100%;padding:.58rem .78rem;border:1px solid var(--brd);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--tx);background:var(--bg);transition:border-color .18s,box-shadow .18s}
+    .fg input:focus,.fg textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,151,58,.11);background:#fff}
+    .fg textarea{resize:vertical;min-height:68px}
+    .fgrow{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+    .chips{display:flex;gap:.32rem;flex-wrap:wrap;margin-top:.28rem}
+    .chip{padding:.28rem .6rem;border-radius:20px;border:1.5px solid var(--brd);font-size:.73rem;font-weight:500;cursor:pointer;transition:all .14s;background:#fff;color:var(--tx2)}
+    .chip.on{background:var(--tx);border-color:var(--tx);color:#fff}
+    .chip.sh{background:#fdf3f6;border-color:#e8a0b0;color:#6e2e45}
+    .chip.sn{background:#eef7f1;border-color:#7aaa8a;color:#275c38}
+    .chip.sm{background:#fdf6ea;border-color:#c9973a;color:#6b4b12}
+    .chip.ss{background:#eef6fb;border-color:#6aabcc;color:#144f6b}
+    .chip.so{background:#f3f0fb;border-color:#9d8ec8;color:#3d2e6b}
+
+    /* DETAIL */
+    .dpad{padding:1.35rem}
+    .dbar{height:4px;border-radius:4px;margin-bottom:1rem}
+    .dname{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;margin-bottom:.55rem}
+    .drow{display:flex;align-items:flex-start;gap:.42rem;font-size:.82rem;color:var(--tx2);margin-bottom:.32rem}
+    .di{width:18px;text-align:center;font-size:.86rem;flex-shrink:0;margin-top:1px}
+    .dacts{display:flex;gap:.45rem;margin-top:1rem}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%) translateY(70px);background:var(--tx);color:#fff;padding:.6rem 1.15rem;border-radius:20px;font-size:.82rem;font-weight:500;z-index:9999;opacity:0;transition:all .28s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.err{background:#d94f4f}
+
+    /* SPIN */
+    .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--brd);border-top-color:var(--gold);border-radius:50%;animation:sp .75s linear infinite;vertical-align:middle;margin-right:.4rem}
+    @keyframes sp{to{transform:rotate(360deg)}}
+
+    @media(max-width:540px){
+      :root{--HH:56px;--LW:46px}
+      .fgrow{grid-template-columns:1fr}
+      .main{padding:1rem .5rem 5rem}
+      .lbl{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="brand">
+    <div class="bgem">✦</div>
+    <div class="bname">Glow<em>Book</em></div>
+  </div>
+  <div class="hbtns">
+    <button class="btn btn-d" id="btnDAll">🗑 <span class="lbl">Șterge tot</span></button>
+    <button class="btn btn-p" id="btnAdd">+ <span class="lbl">Programare</span></button>
+  </div>
+</div>
+
+<div class="swrap"><div class="strip" id="strip"></div></div>
+
+<div class="main">
+  <div class="dhead" id="dhead">—</div>
+  <div class="stats" id="stats"></div>
+  <div id="cal"></div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="overlay" id="addOv">
+  <div class="modal">
+    <div class="mhead">
+      <div class="mtit">Programare nouă</div>
+      <button class="mx" id="btnCloseAdd">×</button>
+    </div>
+    <div class="mbody">
+      <div class="fg"><label>Nume client *</label><input type="text" id="fNume" placeholder="Ex: Maria Ionescu"/></div>
+      <div class="fgrow">
+        <div class="fg"><label>Telefon</label><input type="tel" id="fTel" placeholder="07xx xxx xxx"/></div>
+        <div class="fg"><label>Email</label><input type="email" id="fEmail" placeholder="email@ex.com"/></div>
+      </div>
+      <div class="fgrow">
+        <div class="fg"><label>Data *</label><input type="date" id="fData"/></div>
+        <div class="fg"><label>Ora *</label><input type="time" id="fOra" step="300"/></div>
+      </div>
+      <div class="fg">
+        <label>Durată</label>
+        <div class="chips" id="durChips">
+          <div class="chip on" data-min="30">30 min</div>
+          <div class="chip" data-min="45">45 min</div>
+          <div class="chip" data-min="60">1 oră</div>
+          <div class="chip" data-min="90">1h 30</div>
+          <div class="chip" data-min="120">2 ore</div>
+          <div class="chip" data-min="180">3 ore</div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Tip serviciu</label>
+        <div class="chips" id="svcChips">
+          <div class="chip" data-svc="hair">✂️ Coafură</div>
+          <div class="chip" data-svc="nails">💅 Manichiură</div>
+          <div class="chip" data-svc="makeup">💄 Machiaj</div>
+          <div class="chip" data-svc="massage">🧴 Masaj</div>
+          <div class="chip" data-svc="other">✨ Altele</div>
+        </div>
+      </div>
+      <div class="fg"><label>Note</label><textarea id="fNote" placeholder="Preferințe, observații..."></textarea></div>
+      <button class="btn btn-p" id="btnSubmit" style="width:100%;justify-content:center;padding:.68rem;border-radius:10px;font-size:.9rem;">Adaugă programare</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detOv">
+  <div class="modal">
+    <div class="dpad" id="detBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9W47j-kIZiYfst1sA9n6flIunqzvQnftHHPtjbcHfFaaPmbT63Cj2jpzb6oJE4mVOag/exec';
+const HS = 8, HE = 20;
+
+const SVC = {
+  hair:    {label:'✂️ Coafură',    cls:'c-hair',   sc:'sh', bar:'#e8a0b0'},
+  nails:   {label:'💅 Manichiură', cls:'c-nails',  sc:'sn', bar:'#7aaa8a'},
+  makeup:  {label:'💄 Machiaj',    cls:'c-makeup', sc:'sm', bar:'#c9973a'},
+  massage: {label:'🧴 Masaj',      cls:'c-massage',sc:'ss', bar:'#6aabcc'},
+  other:   {label:'✨ Altele',     cls:'c-other',  sc:'so', bar:'#9d8ec8'},
+};
+
+const DNR  = ['Dum','Lun','Mar','Mie','Joi','Vin','Sâm'];
+const DNRF = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+const MNR  = ['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','nov','dec'];
+
+// ── STATE ───────────────────────────────────────────
+let apts    = [];
+let selDate = today();
+let selDur  = 30;
+let selSvc  = null;
+let idCtr   = Date.now();
+let toastT;
+
+// ── DATE UTILS ──────────────────────────────────────
+function today() {
+  const d = new Date();
+  return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}`;
+}
+function fmt(d)  { return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}`; }
+function parse(s){ const [d,m,y]=s.split('.'); return new Date(`${y}-${m}-${d}`); }
+function toInp(s){ const [d,m,y]=s.split('.'); return `${y}-${m}-${d}`; }
+function frInp(s){ const [y,m,d]=s.split('-'); return `${d}.${m}.${y}`; }
+function p(n)    { return String(n).padStart(2,'0'); }
+function t2m(t)  { const [h,m]=t.split(':').map(Number); return h*60+m; }
+function m2t(m)  { return `${p(Math.floor(m/60))}:${p(m%60)}`; }
+
+function svcOf(raw='') {
+  const s = raw.toLowerCase();
+  if(s.includes('coaf')||s.includes('tuns')||s.includes('vops')) return 'hair';
+  if(s.includes('manichiur')||s.includes('pedichiur')) return 'nails';
+  if(s.includes('machiaj')||s.includes('makeup')) return 'makeup';
+  if(s.includes('masaj')||s.includes('massage')) return 'massage';
+  return 'other';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── BOOT ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('fData').value = toInp(selDate);
+
+  // Duration chips
+  document.querySelectorAll('#durChips .chip').forEach(el => {
+    el.onclick = () => {
+      document.querySelectorAll('#durChips .chip').forEach(c => c.className='chip');
+      el.classList.add('on');
+      selDur = +el.dataset.min;
+    };
+  });
+
+  // Service chips
+  document.querySelectorAll('#svcChips .chip').forEach(el => {
+    el.onclick = () => {
+      document.querySelectorAll('#svcChips .chip').forEach(c => c.className='chip');
+      selSvc = el.dataset.svc;
+      el.classList.add(SVC[selSvc].sc);
+    };
+  });
+
+  // Buttons
+  document.getElementById('btnAdd').onclick    = () => document.getElementById('addOv').classList.add('open');
+  document.getElementById('btnCloseAdd').onclick = closeAdd;
+  document.getElementById('btnSubmit').onclick = submitAdd;
+  document.getElementById('btnDAll').onclick   = deleteAll;
+
+  // Close overlays on bg click
+  document.getElementById('addOv').onclick = e => { if(e.target.id==='addOv') closeAdd(); };
+  document.getElementById('detOv').onclick = e => { if(e.target.id==='detOv') closeDet(); };
+
+  // Render immediately with empty state, then try to load from Sheets
+  renderAll();
+  loadSheets();
+});
+
+// ── SHEETS ──────────────────────────────────────────
+async function loadSheets() {
+  try {
+    const r = await fetch(SCRIPT_URL);
+    const j = await r.json();
+    if (Array.isArray(j) && j.length > 0) {
+      apts = j;
+      renderAll();
+    }
+  } catch(e) {
+    // offline or CORS — stays in-memory, no crash
+  }
+}
+
+async function saveToSheets(payload) {
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+  } catch(e) { /* silent */ }
+}
+
+// ── RENDER ──────────────────────────────────────────
+function renderAll() {
+  renderStrip();
+  renderCal();
+}
+
+function renderStrip() {
+  const hasDates = new Set(apts.map(a => a.data));
+  const base = new Date();
+  const days = [];
+  for(let i=-3;i<=13;i++){
+    const d=new Date(base); d.setDate(base.getDate()+i); days.push(d);
+  }
+  hasDates.forEach(ds => {
+    if(!days.some(d=>fmt(d)===ds)) days.push(parse(ds));
+  });
+  days.sort((a,b)=>a-b);
+
+  document.getElementById('strip').innerHTML = days.map(d => {
+    const ds=fmt(d), on=ds===selDate, has=hasDates.has(ds);
+    return `<div class="dc${on?' on':''}${has?' has':''}" data-date="${ds}">
+      <div class="dcn">${DNR[d.getDay()]}</div>
+      <div class="dcd">${d.getDate()}</div>
+      <div class="dcdot"></div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.dc').forEach(el => {
+    el.onclick = () => {
+      selDate = el.dataset.date;
+      document.getElementById('fData').value = toInp(selDate);
+      renderAll();
+    };
+  });
+
+  setTimeout(() => {
+    const el = document.querySelector('.dc.on');
+    if(el) el.scrollIntoView({inline:'center',behavior:'smooth'});
+  }, 60);
+}
+
+function renderCal() {
+  const d = parse(selDate);
+  document.getElementById('dhead').textContent =
+    `${DNRF[d.getDay()]}, ${d.getDate()} ${MNR[d.getMonth()]} ${d.getFullYear()}`;
+
+  const dayApts = apts
+    .filter(a => a.data === selDate)
+    .map(a => ({...a, sm: t2m(a.oraProgramarii), dm: Math.max(15,+a.durata||60), sk: svcOf(a.tipProgramare)}))
+    .sort((a,b) => a.sm-b.sm);
+
+  const totalH = HE-HS;
+  const busyM  = dayApts.reduce((s,a)=>s+a.dm,0);
+  const freeM  = Math.max(0,totalH*60-busyM);
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat">📅 <b>${dayApts.length}</b> programări</div>
+    <div class="stat">⏳ <b>${(freeM/60).toFixed(1)}h</b> libere</div>
+    <div class="stat">🕗 ${p(HS)}:00 – ${p(HE)}:00</div>`;
+
+  const totalPx = totalH * 60;
+
+  // hour labels
+  let labels = '';
+  for(let h=HS;h<HE;h++){
+    labels += `<div class="hrlabel">${p(h)}:00</div>`;
+  }
+
+  // hour lines
+  let lines = '';
+  for(let h=HS;h<HE;h++){
+    const top=(h-HS)*60;
+    lines += `<div class="hrline" style="top:${top}px"><div class="hrfree"></div></div>`;
+  }
+
+  // apt blocks
+  let blocks = '';
+  dayApts.forEach(a => {
+    const top    = a.sm - HS*60;
+    const height = Math.max(a.dm, 22);
+    const cfg    = SVC[a.sk];
+    const endM   = a.sm + a.dm;
+    blocks += `<div class="ablock ${cfg.cls}" data-id="${a.id}" style="top:${top}px;height:${height}px;">
+      <div class="abn">${esc(a.nume)}</div>
+      ${a.dm>=30?`<div class="abs">${esc(a.tipProgramare)}</div>`:''}
+      ${a.dm>=45?`<div class="abt">${m2t(a.sm)} – ${m2t(endM)}</div>`:''}
+    </div>`;
+  });
+
+  // now line
+  let nowLine = '';
+  const now = new Date();
+  if(selDate===today()){
+    const nm = now.getHours()*60+now.getMinutes();
+    if(nm>=HS*60 && nm<HE*60){
+      nowLine = `<div class="nowline" style="top:${nm-HS*60}px"><div class="nowdot"></div></div>`;
+    }
+  }
+
+  // legend
+  const legend = Object.entries(SVC).map(([k,v])=>
+    `<div class="legit"><div class="legdot" style="background:${v.bar}"></div>${v.label}</div>`
+  ).join('') + `<div class="legit"><div class="legdot" style="background:repeating-linear-gradient(45deg,#ccc,#ccc 2px,#f0f0f0 2px,#f0f0f0 6px);border-radius:0"></div>Liber</div>`;
+
+  document.getElementById('cal').innerHTML = `
+    <div class="tlshell">
+      <div class="tlgrid" style="height:${totalPx}px;">
+        <div class="tlhours" style="height:${totalPx}px;">${labels}</div>
+        <div class="tlevents" style="height:${totalPx}px;position:relative;">
+          ${lines}${blocks}${nowLine}
+        </div>
+      </div>
+      <div class="legend">${legend}</div>
+    </div>`;
+
+  // attach apt click handlers
+  document.querySelectorAll('.ablock').forEach(el => {
+    el.onclick = () => openDet(el.dataset.id);
+  });
+}
+
+// ── ADD ─────────────────────────────────────────────
+function closeAdd() {
+  document.getElementById('addOv').classList.remove('open');
+  document.getElementById('fNume').value='';
+  document.getElementById('fTel').value='';
+  document.getElementById('fEmail').value='';
+  document.getElementById('fOra').value='';
+  document.getElementById('fNote').value='';
+  document.querySelectorAll('#durChips .chip').forEach(c=>c.className='chip');
+  document.querySelector('#durChips [data-min="30"]').classList.add('on');
+  selDur=30; selSvc=null;
+  document.querySelectorAll('#svcChips .chip').forEach(c=>c.className='chip');
+}
+
+function submitAdd() {
+  const nume  = document.getElementById('fNume').value.trim();
+  const dataV = document.getElementById('fData').value;
+  const ora   = document.getElementById('fOra').value;
+  if(!nume||!dataV||!ora){ showToast('Completează: Nume, Data și Ora', true); return; }
+
+  const apt = {
+    id:             String(++idCtr),
+    nume,
+    nrTelefon:      document.getElementById('fTel').value.trim(),
+    email:          document.getElementById('fEmail').value.trim(),
+    data:           frInp(dataV),
+    oraProgramarii: ora,
+    tipProgramare:  selSvc ? SVC[selSvc].label : '✨ Altele',
+    durata:         String(selDur),
+    notite:         document.getElementById('fNote').value.trim()
+  };
+
+  apts.push(apt);
+  selDate = apt.data;
+  closeAdd();
+  renderAll();
+  showToast('Programare adăugată ✓');
+  saveToSheets({action:'add', ...apt});
+}
+
+// ── DETAIL ──────────────────────────────────────────
+function openDet(id) {
+  const a = apts.find(x => String(x.id)===String(id));
+  if(!a) return;
+  const cfg = SVC[svcOf(a.tipProgramare)];
+  const endM = t2m(a.oraProgramarii)+(+a.durata||60);
+
+  document.getElementById('detBody').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;">
+      <div class="mtit">${esc(a.nume)}</div>
+      <button class="mx" id="btnCloseDet">×</button>
+    </div>
+    <div class="dbar" style="background:${cfg.bar}"></div>
+    <div class="drow"><span class="di">🏷</span>${esc(a.tipProgramare||'—')}</div>
+    <div class="drow"><span class="di">📅</span>${a.data}</div>
+    <div class="drow"><span class="di">⏰</span>${a.oraProgramarii} – ${m2t(endM)} · ${a.durata||'?'} min</div>
+    ${a.nrTelefon?`<div class="drow"><span class="di">📞</span>${esc(a.nrTelefon)}</div>`:''}
+    ${a.email?`<div class="drow"><span class="di">📧</span>${esc(a.email)}</div>`:''}
+    ${a.notite?`<div class="drow"><span class="di">📝</span>${esc(a.notite)}</div>`:''}
+    <div class="dacts">
+      <button class="btn btn-d" id="btnDel" style="flex:1;justify-content:center;">🗑 Șterge</button>
+      <button class="btn" id="btnCloseDet2" style="flex:1;justify-content:center;">Închide</button>
+    </div>`;
+
+  document.getElementById('detOv').classList.add('open');
+  document.getElementById('btnCloseDet').onclick  = closeDet;
+  document.getElementById('btnCloseDet2').onclick = closeDet;
+  document.getElementById('btnDel').onclick = () => delApt(String(a.id));
+}
+
+function closeDet() {
+  document.getElementById('detOv').classList.remove('open');
+}
+
+// ── DELETE ──────────────────────────────────────────
+function delApt(id) {
+  if(!confirm('Ștergi această programare?')) return;
+  apts = apts.filter(a => String(a.id) !== id);
+  closeDet();
+  renderAll();
+  showToast('Programare ștearsă ✓');
+  saveToSheets({action:'delete', id});
+}
+
+function deleteAll() {
+  if(!confirm('Ștergi TOATE programările?')) return;
+  apts = [];
+  renderAll();
+  showToast('Toate programările șterse ✓');
+  saveToSheets({action:'deleteAll'});
+}
+
+// ── TOAST ───────────────────────────────────────────
+function showToast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err?' err':'');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.className='toast'; }, 3000);
+}
+</script>
+</body>
+</html>
