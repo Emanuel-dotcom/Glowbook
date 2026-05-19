@@ -216,7 +216,7 @@
 
 <script>
 // ── CONFIG ──────────────────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzni0iD3GO51CXB3o8GJ8_16u6Fkbv3S_l_Uys73qsi5A8TuanH5DIaJchlU70BZlT6RQ/exec';
+const SCRIPT_URL = '/api/proxy';
 const HS = 8, HE = 20;
 
 const SVC = {
@@ -318,8 +318,11 @@ async function loadSheets() {
 
 async function saveToSheets(payload) {
   try {
-    const params = new URLSearchParams({data: JSON.stringify(payload)});
-    await fetch(SCRIPT_URL + '?' + params.toString(), {method: 'GET', mode: 'no-cors'});
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
   } catch(e) { /* silent */ }
 }
 
